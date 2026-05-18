@@ -215,7 +215,7 @@ function BaseSkirt({ data }) {
 
   return (
     <mesh geometry={geometry}>
-      <meshBasicMaterial color="#1e1e26" side={THREE.DoubleSide} />
+      <meshBasicMaterial color="#2a2826" side={THREE.DoubleSide} />
     </mesh>
   );
 }
@@ -309,7 +309,7 @@ export default function TerrainViewer({ data, activeLayer, onHover }) {
   return (
     <div className="terrain-viewer" onMouseMove={handleMouseMove}>
       <Canvas
-        camera={{ position: [55, 26, 65], fov: 38, near: 0.1, far: 500 }}
+        camera={{ position: [65, 35, 70], fov: 38, near: 0.1, far: 500 }}
         gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}
         style={{ background: '#161617' }}
       >
@@ -334,6 +334,7 @@ export default function TerrainViewer({ data, activeLayer, onHover }) {
           maxPolarAngle={Math.PI / 2.2}
           target={[0, 3, 0]}
           autoRotate={false}
+          zoomSpeed={0.4}
         />
       </Canvas>
 

@@ -39,7 +39,7 @@ export default function PipelinePage() {
     <div className="pipeline-page">
       <div className="pipeline-header">
         <h1>Pipeline</h1>
-        <span className="subtitle">End-to-end data flow: sequencing → spatial intelligence</span>
+        <span className="subtitle">End-to-end data flow</span>
       </div>
       <div className="pipeline-flow">
         <svg

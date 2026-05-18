@@ -77,17 +77,45 @@ export default function PHRichnessScatter({ data }) {
         const t = (d.pH - 1) / 4;
         return d3.interpolateRdYlGn(t);
       })
-      .attr('opacity', 0.8)
+      .attr('opacity', 0.55)
       .attr('stroke', '#00000033')
-      .attr('stroke-width', 0.5);
+      .attr('stroke-width', 0.5)
+      .style('cursor', 'pointer')
+      .on('mouseenter', function (event, d) {
+        d3.select(this).attr('r', 7).attr('opacity', 1);
+        g.append('g').attr('class', 'scatter-tooltip')
+          .append('text')
+          .attr('x', xScale(d.pH) + 10)
+          .attr('y', yScale(d.simRichness) - 8)
+          .attr('fill', '#ccc')
+          .attr('font-size', '9px')
+          .text(`pH: ${d.pH.toFixed(2)} · Richness: ${d.simRichness}`);
+      })
+      .on('mouseleave', function () {
+        d3.select(this).attr('r', 4).attr('opacity', 0.55);
+        g.selectAll('.scatter-tooltip').remove();
+      });
 
-    // Annotation
+    // AMD zone highlight — dotted rectangle in low pH, high richness area
+    g.append('rect')
+      .attr('x', xScale(1))
+      .attr('y', yScale(slope * 1.3 + intercept + 40))
+      .attr('width', xScale(2.5) - xScale(1))
+      .attr('height', yScale(slope * 2.5 + intercept - 40) - yScale(slope * 1.3 + intercept + 40))
+      .attr('fill', 'rgba(255,60,60,0.05)')
+      .attr('stroke', '#ff4444')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '4,3')
+      .attr('rx', 4);
+
     g.append('text')
-      .attr('x', xScale(1.5)).attr('y', yScale(slope * 1.5 + intercept) - 15)
+      .attr('x', xScale(1.75))
+      .attr('y', yScale(slope * 1.3 + intercept + 40) - 6)
+      .attr('text-anchor', 'middle')
       .attr('fill', '#ff6666')
       .attr('font-size', '9px')
       .attr('font-style', 'italic')
-      .text('← AMD zone: high activity');
+      .text('AMD zone');
 
     // Legend — point color
     const legendX = w - 90;

@@ -54,10 +54,10 @@ export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
       .thresholds(thresholds)(values);
 
     const elevColorScale = d3.scaleSequential((t) => {
-      // Very muted dark tones so sample points pop
-      const grey = Math.round(18 + t * 20);
-      return `rgb(${grey},${grey + 2},${grey + 5})`;
-    }).domain([elevExtent[1], elevExtent[0]]);
+      // Very subtle teal fill between contour bands
+      const alpha = 0.03 + t * 0.04;
+      return `rgba(26, 58, 58, ${alpha})`;
+    }).domain([elevExtent[0], elevExtent[1]]);
 
     // Draw filled contours
     const pathGen = d3.geoPath().projection(
@@ -74,18 +74,11 @@ export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
       .attr('class', 'contour-fill')
       .attr('d', pathGen)
       .attr('fill', (d) => elevColorScale(d.value))
-      .attr('stroke', 'none')
-      .attr('opacity', 0.8);
+      .attr('stroke', '#1a3a3a')
+      .attr('stroke-width', 0.6)
+      .attr('opacity', 1);
 
-    // Draw contour lines
-    g.selectAll('path.contour-line')
-      .data(contours)
-      .join('path')
-      .attr('class', 'contour-line')
-      .attr('d', pathGen)
-      .attr('fill', 'none')
-      .attr('stroke', '#2a2a30')
-      .attr('stroke-width', 0.4);
+    // Contour lines already rendered as stroke on filled contours
 
     // Overlay chemistry sample points
     const chemPoints = data.filter((d) => d[selectedLayer] !== null && d[selectedLayer] !== undefined);

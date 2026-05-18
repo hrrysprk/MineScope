@@ -477,12 +477,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 10px;
 }
 
 .heatmap-container .chart-title {
   align-self: flex-start;
+  margin-bottom: 0;
+}
+
+.heatmap-container svg {
+  margin-top: -10px;
 }
 
 .heatmap-container canvas {
@@ -501,29 +506,29 @@ body {
   position: absolute;
   bottom: 12px;
   right: 12px;
-  min-width: 140px;
+  min-width: 120px;
 }
 
 .heatmap-legend-corner .legend-title {
-  font-size: 10px;
+  font-size: 8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   color: #777;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .heatmap-legend-corner .legend-gradient {
   height: 8px;
-  border-radius: 3px;
   width: 100%;
+  border-radius: 3px;
 }
 
 .heatmap-legend-corner .legend-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
-  color: #555;
-  margin-top: 3px;
+  font-size: 8px;
+  color: #666;
+  margin-top: 2px;
 }
 
 .heatmap-legend-bar {
