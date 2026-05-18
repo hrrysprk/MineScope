@@ -2,18 +2,18 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
 // Top annotated functions from MetaPathways SwissProt BLAST
-// These are real accessions from the pipeline output mapped to function names
+// Real accessions mapped to functional categories from the pipeline output
 const TOP_PATHWAYS = [
-  { name: 'Sulfur oxidation', count: 90 },
-  { name: 'Iron transport', count: 76 },
-  { name: 'Acid tolerance', count: 71 },
-  { name: 'Electron transfer', count: 65 },
-  { name: 'Heavy metal efflux', count: 59 },
-  { name: 'Membrane transport', count: 52 },
-  { name: 'DNA repair', count: 48 },
-  { name: 'Oxidative stress', count: 44 },
-  { name: 'Carbon fixation', count: 38 },
-  { name: 'Nitrogen metabolism', count: 31 },
+  { name: 'Biofilm signaling (c-di-GMP)', count: 200 },
+  { name: 'Heavy metal efflux', count: 153 },
+  { name: 'Membrane transport (RND)', count: 152 },
+  { name: 'Cation resistance', count: 152 },
+  { name: 'Stress response', count: 152 },
+  { name: 'Signal transduction', count: 130 },
+  { name: 'Electron transport', count: 122 },
+  { name: 'Energy metabolism', count: 116 },
+  { name: 'Oxidoreductase activity', count: 111 },
+  { name: 'Acid/solvent tolerance', count: 110 },
 ];
 
 export default function PathwayBar() {
