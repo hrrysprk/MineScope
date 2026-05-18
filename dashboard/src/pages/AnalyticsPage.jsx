@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import RadarChart from '../components/RadarChart';
-import ElevationPHScatter from '../components/ElevationPHScatter';
 import HeatmapGrid from '../components/HeatmapGrid';
-import RichnessBar from '../components/RichnessBar';
+import PathwayBar from '../components/PathwayBar';
+import PHRichnessScatter from '../components/PHRichnessScatter';
 
 export default function AnalyticsPage({ data }) {
   const [selectedSites, setSelectedSites] = useState([]);
@@ -11,20 +11,20 @@ export default function AnalyticsPage({ data }) {
     <div className="analytics-page">
       <div className="analytics-header">
         <h1>Analytics</h1>
-        <span className="subtitle">Spatial chemistry and terrain correlations • Shift+click to compare sites</span>
+        <span className="subtitle">Spatial chemistry, terrain correlations, and functional profiling • Shift+click to compare sites</span>
       </div>
       <div className="analytics-grid">
         <div className="chart-card">
           <RadarChart data={data} selectedSites={selectedSites} />
         </div>
         <div className="chart-card">
-          <ElevationPHScatter data={data} />
+          <PathwayBar />
         </div>
         <div className="chart-card">
           <HeatmapGrid data={data} selectedSites={selectedSites} onSiteSelect={setSelectedSites} />
         </div>
         <div className="chart-card">
-          <RichnessBar data={data} />
+          <PHRichnessScatter data={data} />
         </div>
       </div>
     </div>

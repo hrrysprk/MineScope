@@ -106,11 +106,53 @@ export default function RadarChart({ data, selectedSites }) {
         .attr('stroke', color)
         .attr('stroke-width', 2);
 
-      sitePoints.forEach((point) => {
+      sitePoints.forEach((point, i) => {
         g.append('circle')
           .attr('cx', point[0]).attr('cy', point[1])
           .attr('r', 3)
           .attr('fill', color);
+      });
+    });
+
+    // Render all hover targets AFTER all polygons (so they're always on top)
+    selectedSites.forEach((site, sIdx) => {
+      const color = COLORS[sIdx % COLORS.length];
+      const siteValues = AXES.map((axis) => site[axis.key] ?? 0);
+      const sitePoints = siteValues.map((val, i) => {
+        const angle = angleSlice * i - Math.PI / 2;
+        const r = (Math.min(val, AXES[i].max) / AXES[i].max) * radius;
+        return [Math.cos(angle) * r, Math.sin(angle) * r];
+      });
+
+      sitePoints.forEach((point, i) => {
+        g.append('circle')
+          .attr('cx', point[0]).attr('cy', point[1])
+          .attr('r', 10)
+          .attr('fill', 'transparent')
+          .style('cursor', 'pointer')
+          .on('mouseenter', function () {
+            const val = siteValues[i];
+            const label = AXES[i].label;
+            const tooltipG = g.append('g').attr('class', 'radar-tooltip');
+            tooltipG.append('rect')
+              .attr('x', point[0] + 8)
+              .attr('y', point[1] - 18)
+              .attr('width', 75)
+              .attr('height', 20)
+              .attr('rx', 4)
+              .attr('fill', 'rgba(22,22,23,0.85)');
+            tooltipG.append('text')
+              .attr('x', point[0] + 45)
+              .attr('y', point[1] - 5)
+              .attr('text-anchor', 'middle')
+              .attr('fill', color)
+              .attr('font-size', '9px')
+              .attr('font-weight', '700')
+              .text(`${label}: ${val.toFixed(0)}`);
+          })
+          .on('mouseleave', function () {
+            g.selectAll('.radar-tooltip').remove();
+          });
       });
     });
 
@@ -138,6 +180,21 @@ export default function RadarChart({ data, selectedSites }) {
           .text(`pH ${site.pH.toFixed(2)}`);
       }
     });
+
+    // Legend — bottom left
+    const legendY = height - 16;
+    svg.append('line')
+      .attr('x1', 12).attr('y1', legendY)
+      .attr('x2', 36).attr('y2', legendY)
+      .attr('stroke', '#ff4444')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '4,4');
+    svg.append('text')
+      .attr('x', 40).attr('y', legendY + 4)
+      .attr('fill', '#888')
+      .attr('font-size', '9px')
+      .text('Mean');
+
   }, [chemData, selectedSites]);
 
   return (

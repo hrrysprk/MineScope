@@ -11,79 +11,124 @@ const LAYER_OPTIONS = [
 ];
 
 export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
-  const canvasRef = useRef(null);
+  const svgRef = useRef(null);
   const [selectedLayer, setSelectedLayer] = useState('pH');
   const [tooltip, setTooltip] = useState(null);
 
   const COLORS = ['#ff8c32', '#32ff8c', '#ff32a8', '#32d4ff', '#ffff32', '#a832ff'];
 
   useEffect(() => {
-    if (!canvasRef.current || data.length === 0) return;
+    if (!svgRef.current || data.length === 0) return;
 
-    const canvas = canvasRef.current;
-    const container = canvas.parentElement;
-    const size = Math.min(container.clientWidth - 10, container.clientHeight - 50);
-    canvas.width = size;
-    canvas.height = size;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
 
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, size, size);
+    const container = svgRef.current.parentElement;
+    const size = Math.min(container.clientWidth - 10, container.clientHeight - 40);
+    const margin = 10;
+    const w = size - margin * 2;
 
-    const cellSize = size / 50;
-    const layerConfig = LAYER_OPTIONS.find((l) => l.key === selectedLayer);
+    svg.attr('width', size).attr('height', size);
 
-    // Draw terrain background
-    const elevExtent = d3.extent(data, (d) => d.elevation);
-    const elevScale = d3.scaleLinear().domain(elevExtent).range([0, 1]);
+    const g = svg.append('g').attr('transform', `translate(${margin},${margin})`);
 
+    const xScale = d3.scaleLinear().domain([0, 49]).range([0, w]);
+    const yScale = d3.scaleLinear().domain([0, 49]).range([0, w]);
+
+    // Build elevation grid for contours
+    const gridSize = 50;
+    const values = new Array(gridSize * gridSize);
     for (const point of data) {
       const x = Math.round(point.x);
       const y = Math.round(point.y);
-      const t = elevScale(point.elevation);
-      const grey = Math.round(18 + t * 22);
-      ctx.fillStyle = `rgb(${grey},${grey + 2},${grey + 4})`;
-      ctx.fillRect(x * cellSize, y * cellSize, cellSize + 0.5, cellSize + 0.5);
+      if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+        values[y * gridSize + x] = point.elevation;
+      }
     }
 
-    // Overlay sample points
-    const chemPoints = data.filter((d) => d[selectedLayer] !== null && d[selectedLayer] !== undefined);
-    if (chemPoints.length === 0) return;
+    // Generate contours
+    const elevExtent = d3.extent(data, (d) => d.elevation);
+    const thresholds = d3.range(elevExtent[0], elevExtent[1], (elevExtent[1] - elevExtent[0]) / 12);
+    const contours = d3.contours()
+      .size([gridSize, gridSize])
+      .thresholds(thresholds)(values);
 
+    const elevColorScale = d3.scaleSequential((t) => {
+      // Very muted dark tones so sample points pop
+      const grey = Math.round(18 + t * 20);
+      return `rgb(${grey},${grey + 2},${grey + 5})`;
+    }).domain([elevExtent[1], elevExtent[0]]);
+
+    // Draw filled contours
+    const pathGen = d3.geoPath().projection(
+      d3.geoTransform({
+        point: function (x, y) {
+          this.stream.point(xScale(x), yScale(y));
+        },
+      })
+    );
+
+    g.selectAll('path.contour-fill')
+      .data(contours)
+      .join('path')
+      .attr('class', 'contour-fill')
+      .attr('d', pathGen)
+      .attr('fill', (d) => elevColorScale(d.value))
+      .attr('stroke', 'none')
+      .attr('opacity', 0.8);
+
+    // Draw contour lines
+    g.selectAll('path.contour-line')
+      .data(contours)
+      .join('path')
+      .attr('class', 'contour-line')
+      .attr('d', pathGen)
+      .attr('fill', 'none')
+      .attr('stroke', '#2a2a30')
+      .attr('stroke-width', 0.4);
+
+    // Overlay chemistry sample points
+    const chemPoints = data.filter((d) => d[selectedLayer] !== null && d[selectedLayer] !== undefined);
+    const layerConfig = LAYER_OPTIONS.find((l) => l.key === selectedLayer);
     const valueExtent = d3.extent(chemPoints, (d) => d[selectedLayer]);
     const colorScale = d3.scaleSequential(layerConfig.interpolator).domain(valueExtent);
 
-    for (const point of chemPoints) {
-      const selIdx = selectedSites.findIndex((s) => s.x === point.x && s.y === point.y);
-      const isSelected = selIdx >= 0;
+    g.selectAll('circle.sample')
+      .data(chemPoints)
+      .join('circle')
+      .attr('class', 'sample')
+      .attr('cx', (d) => xScale(d.x))
+      .attr('cy', (d) => yScale(d.y))
+      .attr('r', (d) => {
+        const selIdx = selectedSites.findIndex((s) => s.x === d.x && s.y === d.y);
+        return selIdx >= 0 ? 6 : 3.5;
+      })
+      .attr('fill', (d) => {
+        const selIdx = selectedSites.findIndex((s) => s.x === d.x && s.y === d.y);
+        return selIdx >= 0 ? COLORS[selIdx % COLORS.length] : colorScale(d[selectedLayer]);
+      })
+      .attr('stroke', (d) => {
+        const selIdx = selectedSites.findIndex((s) => s.x === d.x && s.y === d.y);
+        return selIdx >= 0 ? '#fff' : 'none';
+      })
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0.9)
+      .style('cursor', 'pointer');
 
-      ctx.beginPath();
-      ctx.arc(
-        point.x * cellSize + cellSize / 2,
-        point.y * cellSize + cellSize / 2,
-        isSelected ? cellSize * 1.0 : cellSize * 0.55,
-        0, Math.PI * 2
-      );
-      ctx.fillStyle = isSelected ? COLORS[selIdx % COLORS.length] : colorScale(point[selectedLayer]);
-      ctx.globalAlpha = isSelected ? 1 : 0.85;
-      ctx.fill();
-      ctx.globalAlpha = 1;
-
-      if (isSelected) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-    }
   }, [data, selectedLayer, selectedSites]);
 
-  const handleCanvasClick = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cellSize = canvas.width / 50;
-    const gridX = Math.floor(x / cellSize);
-    const gridY = Math.floor(y / cellSize);
+  const handleClick = (e) => {
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    const container = svg.parentElement;
+    const size = Math.min(container.clientWidth - 10, container.clientHeight - 40);
+    const margin = 10;
+    const w = size - margin * 2;
+
+    const mx = e.clientX - rect.left - margin;
+    const my = e.clientY - rect.top - margin;
+    const gridX = Math.round((mx / w) * 49);
+    const gridY = Math.round((my / w) * 49);
 
     const chemPoints = data.filter((d) => d.pH !== null);
     const clicked = chemPoints.find((d) => {
@@ -94,7 +139,6 @@ export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
 
     if (clicked) {
       if (e.shiftKey) {
-        // Multi-select with shift
         const alreadySelected = selectedSites.findIndex((s) => s.x === clicked.x && s.y === clicked.y);
         if (alreadySelected >= 0) {
           onSiteSelect(selectedSites.filter((_, i) => i !== alreadySelected));
@@ -109,17 +153,18 @@ export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
     }
   };
 
-  // Legend
-  const layerConfig = LAYER_OPTIONS.find((l) => l.key === selectedLayer);
+  const handleMouseMove = (e) => {
+    const svg = svgRef.current;
+    const rect = svg.getBoundingClientRect();
+    const container = svg.parentElement;
+    const size = Math.min(container.clientWidth - 10, container.clientHeight - 40);
+    const margin = 10;
+    const w = size - margin * 2;
 
-  const handleCanvasHover = (e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cellSize = canvas.width / 50;
-    const gridX = Math.floor(x / cellSize);
-    const gridY = Math.floor(y / cellSize);
+    const mx = e.clientX - rect.left - margin;
+    const my = e.clientY - rect.top - margin;
+    const gridX = Math.round((mx / w) * 49);
+    const gridY = Math.round((my / w) * 49);
 
     const chemPoints = data.filter((d) => d.pH !== null);
     const hovered = chemPoints.find((d) => {
@@ -129,11 +174,14 @@ export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
     });
 
     if (hovered) {
-      setTooltip({ x: hovered.x, y: hovered.y, pH: hovered.pH, fe: hovered.fe_mg_l, mouseX: e.clientX, mouseY: e.clientY });
+      setTooltip({ x: hovered.x, y: hovered.y, mouseX: e.clientX, mouseY: e.clientY });
     } else {
       setTooltip(null);
     }
   };
+
+  // Legend
+  const layerConfig = LAYER_OPTIONS.find((l) => l.key === selectedLayer);
   const chemPoints = data.filter((d) => d[selectedLayer] !== null);
   const valueExtent = chemPoints.length ? d3.extent(chemPoints, (d) => d[selectedLayer]) : [0, 1];
 
@@ -147,10 +195,9 @@ export default function HeatmapGrid({ data, selectedSites, onSiteSelect }) {
         </select>
       </div>
       <div className="chart-title heatmap-title" style={{ color: '#6a9fff', fontFamily: 'Bebas Neue, sans-serif', fontSize: '18px', letterSpacing: '1.5px', textAlign: 'left', padding: '8px 12px 4px' }}>SPATIAL VIEW</div>
-      <canvas ref={canvasRef} onClick={handleCanvasClick} onMouseMove={handleCanvasHover} onMouseLeave={() => setTooltip(null)} style={{ cursor: 'crosshair' }} />
+      <svg ref={svgRef} onClick={handleClick} onMouseMove={handleMouseMove} onMouseLeave={() => setTooltip(null)} style={{ cursor: 'crosshair' }} />
       {tooltip && (
         <div
-          className="heatmap-tooltip"
           style={{
             position: 'fixed',
             left: tooltip.mouseX + 12,
