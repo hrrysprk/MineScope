@@ -86,6 +86,13 @@ export default function PathwayBar() {
       .attr('letter-spacing', '1.5px')
       .text('PATHWAY ENRICHMENT');
 
+    svg.append('text')
+      .attr('x', 195).attr('y', 18)
+      .attr('text-anchor', 'start')
+      .attr('fill', '#555')
+      .attr('font-size', '10px')
+      .text('Top 10 by ORF count');
+
   }, []);
 
   return (

@@ -89,6 +89,31 @@ export default function PHRichnessScatter({ data }) {
       .attr('font-style', 'italic')
       .text('← AMD zone: high activity');
 
+    // Legend — point color
+    const legendX = w - 90;
+    const legendY = 10;
+    const legendColors = [1, 2, 3, 4, 5];
+    legendColors.forEach((ph, i) => {
+      g.append('circle')
+        .attr('cx', legendX + i * 18)
+        .attr('cy', legendY)
+        .attr('r', 4)
+        .attr('fill', d3.interpolateRdYlGn((ph - 1) / 4));
+    });
+    g.append('text')
+      .attr('x', legendX - 5).attr('y', legendY + 4)
+      .attr('text-anchor', 'end')
+      .attr('fill', '#666').attr('font-size', '8px')
+      .text('pH:');
+    g.append('text')
+      .attr('x', legendX).attr('y', legendY + 14)
+      .attr('fill', '#555').attr('font-size', '7px')
+      .text('low');
+    g.append('text')
+      .attr('x', legendX + 72).attr('y', legendY + 14)
+      .attr('fill', '#555').attr('font-size', '7px')
+      .text('high');
+
     // Title
     svg.append('text')
       .attr('x', 12).attr('y', 18)
