@@ -215,7 +215,7 @@ function BaseSkirt({ data }) {
 
   return (
     <mesh geometry={geometry}>
-      <meshBasicMaterial color="#2a2826" side={THREE.DoubleSide} />
+      <meshBasicMaterial color="#201e1c" side={THREE.DoubleSide} />
     </mesh>
   );
 }

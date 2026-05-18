@@ -106,7 +106,8 @@ export default function PHRichnessScatter({ data }) {
       .attr('stroke', '#ff4444')
       .attr('stroke-width', 1)
       .attr('stroke-dasharray', '4,3')
-      .attr('rx', 4);
+      .attr('rx', 4)
+      .style('pointer-events', 'none');
 
     g.append('text')
       .attr('x', xScale(1.75))

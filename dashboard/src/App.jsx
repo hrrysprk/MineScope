@@ -22,10 +22,14 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/gold_layer.json')
+    fetch(`${import.meta.env.BASE_URL}gold_layer.json`)
       .then((res) => res.json())
       .then((records) => {
         setData(records);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load gold_layer.json:', err);
         setLoading(false);
       });
   }, []);
