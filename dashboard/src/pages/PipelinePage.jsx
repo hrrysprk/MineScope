@@ -1,152 +1,270 @@
+// PipelineDiagram.jsx
+// MineScope — nf-core metro-map style pipeline diagram
+
+const COLORS = {
+  bg: '#161617',
+  bgAlt: '#181819',
+  bgAlt2: '#191918',
+  divider: '#2d2d2d',
+  sectionLabel: '#4a4a4a',
+  text: '#cccccc',
+  textMuted: '#888',
+  textDim: '#555',
+  blue: '#6a9fff',
+  green: '#82dc82',
+  orange: '#ffb432',
+  gold: '#ffd700',
+  pink: '#dc8282',
+  activeGreen: '#82dc82',
+  docker: '#0db7ed',
+  polars: '#cd8d2f',
+  parquet: '#50fa7b',
+  pydantic: '#e06c75',
+};
+
+const STATS = {
+  reads: 'FASTQ',
+  readsSize: '',
+  contigs: '',
+  orfs: '',
+  blastHits: '',
+  proteins: '',
+  lidarCells: '50×50m grid',
+  chemSamples: 'GPS-tagged',
+  goldCells: 'Spatial join · Parquet',
+};
+
 export default function PipelinePage() {
   return (
     <div className="pipeline-page">
       <div className="pipeline-header">
-        <h1>Pipeline Architecture</h1>
+        <h1>Pipeline</h1>
         <span className="subtitle">End-to-end data flow: sequencing → spatial intelligence</span>
       </div>
       <div className="pipeline-flow">
-        <svg viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg" className="pipeline-svg">
-          {/* Background sections */}
-          <rect x="30" y="20" width="380" height="130" rx="12" fill="none" stroke="#2a2a3e" strokeWidth="1" />
-          <rect x="440" y="20" width="280" height="130" rx="12" fill="none" stroke="#2a2a3e" strokeWidth="1" />
-          <rect x="750" y="20" width="320" height="130" rx="12" fill="none" stroke="#2a2a3e" strokeWidth="1" />
-          <rect x="30" y="180" width="1040" height="130" rx="12" fill="none" stroke="#2a2a3e" strokeWidth="1" />
-          <rect x="30" y="340" width="1040" height="150" rx="12" fill="none" stroke="#2a2a3e" strokeWidth="1" />
+        <svg
+          viewBox="0 0 1480 650"
+          xmlns="http://www.w3.org/2000/svg"
+          fontFamily="'Inter','Segoe UI',Arial,sans-serif"
+          style={{ width: '100%', height: '100%' }}
+          role="img"
+          aria-label="MineScope integrated pipeline diagram"
+        >
+          {/* ===== BACKGROUND ===== */}
+          <rect width="1480" height="650" fill={COLORS.bg} />
+          <rect x="0" y="0" width="190" height="560" fill={COLORS.bgAlt} />
+          <rect x="695" y="0" width="375" height="560" fill={COLORS.bgAlt2} />
 
-          {/* Section labels */}
-          <text x="45" y="40" fill="#6a9fff" fontSize="11" fontWeight="700">❶ Data Acquisition</text>
-          <text x="455" y="40" fill="#82dc82" fontSize="11" fontWeight="700">❷ Assembly & Annotation</text>
-          <text x="765" y="40" fill="#ffb432" fontSize="11" fontWeight="700">❸ Medallion Layers</text>
-          <text x="45" y="200" fill="#c882dc" fontSize="11" fontWeight="700">❹ Data Integration Pipeline (Python + Polars)</text>
-          <text x="45" y="360" fill="#dc8282" fontSize="11" fontWeight="700">❺ Visualization & Delivery</text>
+          {/* ===== SECTION DIVIDERS ===== */}
+          <line x1="190" y1="15" x2="190" y2="520" stroke={COLORS.divider} strokeWidth="1" strokeDasharray="5,4" />
+          <line x1="695" y1="15" x2="695" y2="520" stroke={COLORS.divider} strokeWidth="1" strokeDasharray="5,4" />
+          <line x1="1070" y1="15" x2="1070" y2="520" stroke={COLORS.divider} strokeWidth="1" strokeDasharray="5,4" />
 
-          {/* === LINE 1: Metagenomics (blue) === */}
-          <path d="M 80,85 L 180,85 L 280,85 L 380,85 L 500,85 L 620,85 L 780,85 L 900,85 L 1000,85"
-            fill="none" stroke="#6a9fff" strokeWidth="4" strokeLinecap="round" />
-          
-          {/* Stations - Line 1 */}
-          <circle cx="80" cy="85" r="8" fill="#161617" stroke="#6a9fff" strokeWidth="3" />
-          <circle cx="180" cy="85" r="6" fill="#6a9fff" />
-          <circle cx="280" cy="85" r="6" fill="#6a9fff" />
-          <circle cx="500" cy="85" r="8" fill="#161617" stroke="#82dc82" strokeWidth="3" />
-          <circle cx="620" cy="85" r="8" fill="#161617" stroke="#82dc82" strokeWidth="3" />
-          <circle cx="780" cy="85" r="6" fill="#cd7f32" />
-          <circle cx="900" cy="85" r="6" fill="#c0c0c0" />
-          <circle cx="1000" cy="85" r="8" fill="#161617" stroke="#ffd700" strokeWidth="3" />
+          {/* ===== SECTION LABELS ===== */}
+          <text x="95" y="500" textAnchor="middle" fill={COLORS.sectionLabel} fontSize="10" fontWeight="600" letterSpacing="1">DATA ACQUISITION</text>
+          <text x="440" y="500" textAnchor="middle" fill={COLORS.sectionLabel} fontSize="10" fontWeight="600" letterSpacing="1">BIOINFORMATICS</text>
+          <text x="882" y="500" textAnchor="middle" fill={COLORS.sectionLabel} fontSize="10" fontWeight="600" letterSpacing="1">MEDALLION LAYERS</text>
+          <text x="1275" y="500" textAnchor="middle" fill={COLORS.sectionLabel} fontSize="10" fontWeight="600" letterSpacing="1">VISUALIZATION</text>
 
-          {/* Labels - Line 1 */}
-          <text x="80" y="115" fill="#ccc" fontSize="9" textAnchor="middle">FASTQ</text>
-          <text x="80" y="126" fill="#666" fontSize="8" textAnchor="middle">SRR6189722</text>
-          <text x="180" y="115" fill="#ccc" fontSize="9" textAnchor="middle">QC</text>
-          <text x="180" y="126" fill="#666" fontSize="8" textAnchor="middle">438K reads</text>
-          <text x="280" y="115" fill="#ccc" fontSize="9" textAnchor="middle">Single-end</text>
-          <text x="280" y="126" fill="#666" fontSize="8" textAnchor="middle">454 GS FLX</text>
-          <text x="500" y="115" fill="#ccc" fontSize="9" textAnchor="middle">MEGAHIT</text>
-          <text x="500" y="126" fill="#666" fontSize="8" textAnchor="middle">224K contigs</text>
-          <text x="620" y="115" fill="#ccc" fontSize="9" textAnchor="middle">MetaPathways</text>
-          <text x="620" y="126" fill="#666" fontSize="8" textAnchor="middle">v3.5 + SwissProt</text>
-          <text x="780" y="115" fill="#ccc" fontSize="9" textAnchor="middle">Bronze</text>
-          <text x="780" y="126" fill="#666" fontSize="8" textAnchor="middle">BLAST output</text>
-          <text x="900" y="115" fill="#ccc" fontSize="9" textAnchor="middle">Silver</text>
-          <text x="900" y="126" fill="#666" fontSize="8" textAnchor="middle">CLR + counts</text>
-          <text x="1000" y="115" fill="#ccc" fontSize="9" textAnchor="middle">Gold</text>
-          <text x="1000" y="126" fill="#666" fontSize="8" textAnchor="middle">20K proteins</text>
+          {/* ===== DATABASE BRANCH ===== */}
+          <line x1="560" y1="152" x2="560" y2="68" stroke={COLORS.blue} strokeWidth="1.5" strokeDasharray="3,3" opacity="0.55" />
+          <line x1="452" y1="68" x2="668" y2="68" stroke={COLORS.blue} strokeWidth="1.5" opacity="0.4" />
+          {[464, 528, 596, 662].map(x => (
+            <line key={x} x1={x} y1="68" x2={x} y2="50" stroke={COLORS.blue} strokeWidth="1.5" opacity={x === 528 ? 0.55 : 0.45} />
+          ))}
 
-          {/* === LINE 2: LiDAR (green) === */}
-          <path d="M 80,240 L 250,240 L 450,240 L 650,240 L 850,240 L 1000,240 C 1020,240 1040,260 1040,280 L 1040,400"
-            fill="none" stroke="#82dc82" strokeWidth="4" strokeLinecap="round" />
-          
-          <circle cx="80" cy="240" r="8" fill="#161617" stroke="#82dc82" strokeWidth="3" />
-          <circle cx="250" cy="240" r="6" fill="#82dc82" />
-          <circle cx="450" cy="240" r="6" fill="#cd7f32" />
-          <circle cx="650" cy="240" r="6" fill="#c0c0c0" />
-          <circle cx="850" cy="240" r="8" fill="#161617" stroke="#ffd700" strokeWidth="3" />
+          {/* MetaCyc (inactive) */}
+          <circle cx="464" cy="42" r="8" fill="#1a1a2e" stroke={COLORS.blue} strokeWidth="1.5" opacity="0.45" />
+          <text x="464" y="30" textAnchor="middle" fill={COLORS.blue} fontSize="9" opacity="0.45">MetaCyc</text>
+          <text x="464" y="19" textAnchor="middle" fill="#666" fontSize="8" opacity="0.5" fontStyle="italic">pending lic.</text>
 
-          <text x="80" y="265" fill="#ccc" fontSize="9" textAnchor="middle">LiDAR</text>
-          <text x="80" y="276" fill="#666" fontSize="8" textAnchor="middle">50×50m grid</text>
-          <text x="250" y="265" fill="#ccc" fontSize="9" textAnchor="middle">Pydantic</text>
-          <text x="250" y="276" fill="#666" fontSize="8" textAnchor="middle">validation</text>
-          <text x="450" y="265" fill="#ccc" fontSize="9" textAnchor="middle">Bronze</text>
-          <text x="450" y="276" fill="#666" fontSize="8" textAnchor="middle">CSV → Parquet</text>
-          <text x="650" y="265" fill="#ccc" fontSize="9" textAnchor="middle">Silver</text>
-          <text x="650" y="276" fill="#666" fontSize="8" textAnchor="middle">validated grid</text>
-          <text x="850" y="265" fill="#ccc" fontSize="9" textAnchor="middle">Gold</text>
-          <text x="850" y="276" fill="#666" fontSize="8" textAnchor="middle">spatial merge</text>
+          {/* SwissProt (active) */}
+          <circle cx="528" cy="42" r="9" fill="#1a2035" stroke={COLORS.blue} strokeWidth="2" />
+          <text x="528" y="30" textAnchor="middle" fill={COLORS.blue} fontSize="9" fontWeight="700">SwissProt</text>
+          <text x="528" y="19" textAnchor="middle" fill={COLORS.activeGreen} fontSize="8">● active</text>
 
-          {/* === LINE 3: Chemistry (orange) === */}
-          <path d="M 80,290 L 250,290 L 450,290 L 650,290 L 850,290"
-            fill="none" stroke="#ffb432" strokeWidth="4" strokeLinecap="round" />
-          
-          <circle cx="80" cy="290" r="8" fill="#161617" stroke="#ffb432" strokeWidth="3" />
-          <circle cx="250" cy="290" r="6" fill="#ffb432" />
-          <circle cx="450" cy="290" r="6" fill="#cd7f32" />
-          <circle cx="650" cy="290" r="6" fill="#c0c0c0" />
-          <circle cx="850" cy="290" r="8" fill="#161617" stroke="#ffd700" strokeWidth="3" />
+          <circle cx="596" cy="42" r="8" fill="#1a1a2e" stroke={COLORS.blue} strokeWidth="1.5" opacity="0.6" />
+          <text x="596" y="30" textAnchor="middle" fill={COLORS.blue} fontSize="9" opacity="0.6">SILVA rRNA</text>
 
-          <text x="80" y="278" fill="#ccc" fontSize="9" textAnchor="middle">Chemistry</text>
-          <text x="80" y="315" fill="#666" fontSize="8" textAnchor="middle">150 samples</text>
-          <text x="250" y="315" fill="#ccc" fontSize="9" textAnchor="middle">Pydantic</text>
-          <text x="450" y="315" fill="#ccc" fontSize="9" textAnchor="middle">Bronze</text>
-          <text x="650" y="315" fill="#ccc" fontSize="9" textAnchor="middle">Silver</text>
-          <text x="850" y="315" fill="#ccc" fontSize="9" textAnchor="middle">Gold</text>
+          <circle cx="662" cy="42" r="8" fill="#1a1a2e" stroke={COLORS.blue} strokeWidth="1.5" opacity="0.6" />
+          <text x="662" y="30" textAnchor="middle" fill={COLORS.blue} fontSize="9" opacity="0.6">NCBI Tax</text>
 
-          {/* Merge indicator at Gold */}
-          <path d="M 1000,85 C 1020,85 1040,105 1040,125 L 1040,240 C 1040,250 1035,260 1025,260"
-            fill="none" stroke="#6a9fff" strokeWidth="2" strokeDasharray="4,4" />
-          <path d="M 850,240 L 850,290" fill="none" stroke="#ffd700" strokeWidth="2" strokeDasharray="4,4" />
+          {/* ===== BLUE LINE — METAGENOMICS ===== */}
+          <line x1="75" y1="152" x2="190" y2="152" stroke={COLORS.blue} strokeWidth="5" strokeLinecap="round" />
+          <path d="M 190,152 C 210,82 238,82 265,82 L 388,82 C 415,82 450,82 450,152" fill="none" stroke={COLORS.blue} strokeWidth="5" strokeLinecap="round" />
+          <path d="M 190,152 L 450,152" fill="none" stroke={COLORS.blue} strokeWidth="3" strokeDasharray="8,5" opacity="0.5" />
+          <line x1="450" y1="152" x2="742" y2="152" stroke={COLORS.blue} strokeWidth="5" strokeLinecap="round" />
+          <line x1="742" y1="152" x2="898" y2="152" stroke={COLORS.blue} strokeWidth="5" strokeLinecap="round" />
+          <path d="M 898,152 L 965,152 C 1040,152 1040,215 1040,302" fill="none" stroke={COLORS.blue} strokeWidth="5" strokeLinecap="round" />
 
-          {/* === OUTPUT LINE (red/pink) === */}
-          <path d="M 1040,400 L 900,400 L 700,400 L 500,400 L 300,400 L 150,400"
-            fill="none" stroke="#dc8282" strokeWidth="4" strokeLinecap="round" />
+          {/* ===== GREEN LINE — LIDAR ===== */}
+          <line x1="75" y1="302" x2="210" y2="302" stroke={COLORS.green} strokeWidth="5" strokeLinecap="round" />
+          <line x1="210" y1="302" x2="742" y2="302" stroke={COLORS.green} strokeWidth="5" strokeLinecap="round" />
+          <line x1="742" y1="302" x2="898" y2="302" stroke={COLORS.green} strokeWidth="5" strokeLinecap="round" />
+          <line x1="898" y1="302" x2="1040" y2="302" stroke={COLORS.green} strokeWidth="5" strokeLinecap="round" />
 
-          <circle cx="1040" cy="400" r="8" fill="#161617" stroke="#ffd700" strokeWidth="3" />
-          <circle cx="900" cy="400" r="6" fill="#dc8282" />
-          <circle cx="700" cy="400" r="6" fill="#dc8282" />
-          <circle cx="500" cy="400" r="6" fill="#dc8282" />
-          <circle cx="300" cy="400" r="6" fill="#dc8282" />
-          <circle cx="150" cy="400" r="8" fill="#161617" stroke="#dc8282" strokeWidth="3" />
+          {/* ===== ORANGE LINE — SOIL CHEMISTRY ===== */}
+          <line x1="75" y1="418" x2="210" y2="418" stroke={COLORS.orange} strokeWidth="5" strokeLinecap="round" />
+          <line x1="210" y1="418" x2="742" y2="418" stroke={COLORS.orange} strokeWidth="5" strokeLinecap="round" />
+          <line x1="742" y1="418" x2="898" y2="418" stroke={COLORS.orange} strokeWidth="5" strokeLinecap="round" />
+          <path d="M 898,418 L 962,418 C 1040,418 1040,362 1040,302" fill="none" stroke={COLORS.orange} strokeWidth="5" strokeLinecap="round" />
 
-          <text x="1040" y="425" fill="#ccc" fontSize="9" textAnchor="middle">JSON</text>
-          <text x="1040" y="436" fill="#666" fontSize="8" textAnchor="middle">export</text>
-          <text x="900" y="425" fill="#ccc" fontSize="9" textAnchor="middle">Three.js</text>
-          <text x="900" y="436" fill="#666" fontSize="8" textAnchor="middle">3D terrain</text>
-          <text x="700" y="425" fill="#ccc" fontSize="9" textAnchor="middle">D3.js</text>
-          <text x="700" y="436" fill="#666" fontSize="8" textAnchor="middle">charts</text>
-          <text x="500" y="425" fill="#ccc" fontSize="9" textAnchor="middle">React</text>
-          <text x="500" y="436" fill="#666" fontSize="8" textAnchor="middle">components</text>
-          <text x="300" y="425" fill="#ccc" fontSize="9" textAnchor="middle">Interactive</text>
-          <text x="300" y="436" fill="#666" fontSize="8" textAnchor="middle">story mode</text>
-          <text x="150" y="425" fill="#ccc" fontSize="9" textAnchor="middle">Dashboard</text>
-          <text x="150" y="436" fill="#666" fontSize="8" textAnchor="middle">MineScope</text>
+          {/* ===== GOLD + OUTPUT LINE ===== */}
+          <line x1="1040" y1="302" x2="1180" y2="302" stroke={COLORS.gold} strokeWidth="5" strokeLinecap="round" />
+          <line x1="1180" y1="302" x2="1355" y2="302" stroke={COLORS.pink} strokeWidth="5" strokeLinecap="round" />
+          <line x1="1390" y1="302" x2="1418" y2="302" stroke={COLORS.pink} strokeWidth="5" strokeLinecap="round" />
+          <line x1="1418" y1="292" x2="1418" y2="312" stroke={COLORS.pink} strokeWidth="4" />
 
-          {/* Legend */}
-          <g transform="translate(50, 470)">
-            <line x1="0" y1="0" x2="30" y2="0" stroke="#6a9fff" strokeWidth="3" />
-            <text x="35" y="4" fill="#aaa" fontSize="9">Metagenomics</text>
-            <line x1="130" y1="0" x2="160" y2="0" stroke="#82dc82" strokeWidth="3" />
-            <text x="165" y="4" fill="#aaa" fontSize="9">LiDAR</text>
-            <line x1="230" y1="0" x2="260" y2="0" stroke="#ffb432" strokeWidth="3" />
-            <text x="265" y="4" fill="#aaa" fontSize="9">Soil Chemistry</text>
-            <line x1="380" y1="0" x2="410" y2="0" stroke="#dc8282" strokeWidth="3" />
-            <text x="415" y="4" fill="#aaa" fontSize="9">Visualization</text>
-            <circle cx="500" cy="0" r="5" fill="#161617" stroke="#ffd700" strokeWidth="2" />
-            <text x="510" y="4" fill="#aaa" fontSize="9">Key output</text>
-            <circle cx="600" cy="0" r="4" fill="#c0c0c0" />
-            <text x="610" y="4" fill="#aaa" fontSize="9">Processing step</text>
-          </g>
+          {/* ===== STATION NODES ===== */}
+          {/* Nextflow pipeline box */}
+          <rect x="45" y="8" width="650" height="195" rx="10" fill="none" stroke={COLORS.green} strokeWidth="1.5" strokeDasharray="6,4" opacity="0.4" />
+          <text x="65" y="198" fill={COLORS.green} fontSize="9" opacity="0.6" fontWeight="600">Nextflow 26 + Wave Containers</text>
 
-          {/* Tool badges */}
-          <rect x="470" y="55" width="60" height="16" rx="8" fill="rgba(130,220,130,0.15)" stroke="rgba(130,220,130,0.3)" strokeWidth="0.5" />
-          <text x="500" y="66" fill="#82dc82" fontSize="8" textAnchor="middle">Nextflow</text>
-          <rect x="590" y="55" width="60" height="16" rx="8" fill="rgba(130,220,130,0.15)" stroke="rgba(130,220,130,0.3)" strokeWidth="0.5" />
-          <text x="620" y="66" fill="#82dc82" fontSize="8" textAnchor="middle">Docker</text>
-          <rect x="200" y="218" width="50" height="16" rx="8" fill="rgba(106,159,255,0.15)" stroke="rgba(106,159,255,0.3)" strokeWidth="0.5" />
-          <text x="225" y="229" fill="#6a9fff" fontSize="8" textAnchor="middle">Polars</text>
-          <rect x="380" y="218" width="50" height="16" rx="8" fill="rgba(106,159,255,0.15)" stroke="rgba(106,159,255,0.3)" strokeWidth="0.5" />
-          <text x="405" y="229" fill="#6a9fff" fontSize="8" textAnchor="middle">Parquet</text>
-          <rect x="750" y="218" width="80" height="16" rx="8" fill="rgba(255,215,0,0.15)" stroke="rgba(255,215,0,0.3)" strokeWidth="0.5" />
-          <text x="790" y="229" fill="#ffd700" fontSize="8" textAnchor="middle">Spatial Merge</text>
+          <circle cx="75" cy="152" r="16" fill="#2e2e2e" stroke={COLORS.blue} strokeWidth="2.5" />
+          <text x="75" y="156" textAnchor="middle" fill="#aaa" fontSize="9" fontWeight="700">FASTQ</text>
+          <circle cx="190" cy="152" r="5" fill={COLORS.blue} />
+          <circle cx="328" cy="82" r="15" fill="#161a2e" stroke={COLORS.blue} strokeWidth="2.5" />
+          <circle cx="450" cy="152" r="13" fill="#1a1e30" stroke={COLORS.blue} strokeWidth="2.5" />
+          <circle cx="560" cy="152" r="18" fill="#0e1428" stroke={COLORS.blue} strokeWidth="3" />
+          <circle cx="742" cy="152" r="13" fill="#161a2e" stroke={COLORS.blue} strokeWidth="2.5" />
+          <circle cx="898" cy="152" r="13" fill="#161a2e" stroke={COLORS.blue} strokeWidth="2.5" />
+
+          {/* LiDAR input */}
+          <circle cx="75" cy="302" r="16" fill="#2e2e2e" stroke={COLORS.green} strokeWidth="2.5" />
+          <text x="75" y="306" textAnchor="middle" fill="#aaa" fontSize="9" fontWeight="700">LiDAR</text>
+          <circle cx="210" cy="302" r="12" fill="#161e16" stroke={COLORS.green} strokeWidth="2.5" />
+          <circle cx="742" cy="302" r="13" fill="#161e16" stroke={COLORS.green} strokeWidth="2.5" />
+          <circle cx="898" cy="302" r="13" fill="#161e16" stroke={COLORS.green} strokeWidth="2.5" />
+
+          {/* Chemistry input */}
+          <circle cx="75" cy="418" r="16" fill="#2e2e2e" stroke={COLORS.orange} strokeWidth="2.5" />
+          <text x="75" y="422" textAnchor="middle" fill="#aaa" fontSize="9" fontWeight="700">CSV</text>
+          <circle cx="210" cy="418" r="12" fill="#1e1a10" stroke={COLORS.orange} strokeWidth="2.5" />
+          <circle cx="742" cy="418" r="13" fill="#1e1a10" stroke={COLORS.orange} strokeWidth="2.5" />
+          <circle cx="898" cy="418" r="13" fill="#1e1a10" stroke={COLORS.orange} strokeWidth="2.5" />
+
+          {/* Gold merge */}
+          <circle cx="1040" cy="302" r="24" fill="#191400" stroke={COLORS.gold} strokeWidth="3.5" />
+          <text x="1040" y="296" textAnchor="middle" fill={COLORS.gold} fontSize="9" fontWeight="700">SPATIAL</text>
+          <text x="1040" y="310" textAnchor="middle" fill={COLORS.gold} fontSize="9">MERGE</text>
+
+          {/* JSON */}
+          <circle cx="1180" cy="302" r="12" fill="#191400" stroke={COLORS.gold} strokeWidth="2.5" />
+
+          {/* Dashboard end */}
+          <rect x="1355" y="288" width="35" height="28" rx="4" fill="#1e1018" stroke={COLORS.pink} strokeWidth="2.5" />
+          <text x="1372" y="306" textAnchor="middle" fill={COLORS.pink} fontSize="8.5" fontWeight="700">DASH</text>
+
+          {/* ===== TEXT LABELS ===== */}
+          <text x="75" y="178" textAnchor="middle" fill={COLORS.blue} fontSize="10">{STATS.reads}</text>
+          <text x="75" y="191" textAnchor="middle" fill={COLORS.textDim} fontSize="9">{STATS.readsSize}</text>
+          <text x="240" y="72" textAnchor="middle" fill={COLORS.blue} fontSize="9" fontWeight="600">FASTQ path</text>
+          <text x="328" y="56" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">MEGAHIT</text>
+          <text x="328" y="43" textAnchor="middle" fill={COLORS.blue} fontSize="10">Assembly</text>
+          <text x="328" y="108" textAnchor="middle" fill={COLORS.textDim} fontSize="9">{STATS.contigs}</text>
+          <text x="312" y="146" textAnchor="middle" fill={COLORS.blue} fontSize="9" opacity="0.6" fontStyle="italic">— FASTA bypass (skip assembly) —</text>
+          <text x="450" y="175" textAnchor="middle" fill={COLORS.text} fontSize="10" fontWeight="600">FASTA</text>
+          <text x="450" y="188" textAnchor="middle" fill={COLORS.textMuted} fontSize="9">contigs</text>
+          <text x="560" y="120" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">MetaPathways</text>
+          <text x="560" y="107" textAnchor="middle" fill={COLORS.textMuted} fontSize="10">v3.5</text>
+          <text x="560" y="182" textAnchor="middle" fill={COLORS.blue} fontSize="10">{STATS.orfs}</text>
+          <text x="560" y="195" textAnchor="middle" fill={COLORS.textDim} fontSize="9">BLAST · SwissProt</text>
+          <text x="742" y="134" textAnchor="middle" fill={COLORS.blue} fontSize="10">Metagenomics</text>
+          <text x="742" y="178" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">Bronze</text>
+          <text x="742" y="191" textAnchor="middle" fill={COLORS.textDim} fontSize="9">{STATS.blastHits}</text>
+          <text x="898" y="134" textAnchor="middle" fill={COLORS.blue} fontSize="10">Metagenomics</text>
+          <text x="898" y="178" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">Silver</text>
+          <text x="898" y="191" textAnchor="middle" fill={COLORS.textDim} fontSize="9">CLR normalized</text>
+          <text x="898" y="203" textAnchor="middle" fill={COLORS.textDim} fontSize="9">{STATS.proteins}</text>
+          <text x="75" y="276" textAnchor="middle" fill={COLORS.text} fontSize="11" fontWeight="700">Drone LiDAR</text>
+          <text x="75" y="330" textAnchor="middle" fill={COLORS.green} fontSize="10">{STATS.lidarCells}</text>
+          <text x="75" y="343" textAnchor="middle" fill={COLORS.textDim} fontSize="9">50×50m grid</text>
+          <text x="210" y="276" textAnchor="middle" fill={COLORS.textMuted} fontSize="9">Validation</text>
+          <text x="210" y="328" textAnchor="middle" fill={COLORS.text} fontSize="11" fontWeight="700">Pydantic</text>
+          <text x="742" y="276" textAnchor="middle" fill={COLORS.green} fontSize="10">LiDAR</text>
+          <text x="742" y="328" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">Bronze</text>
+          <text x="742" y="341" textAnchor="middle" fill={COLORS.textDim} fontSize="9">CSV → Parquet</text>
+          <text x="898" y="276" textAnchor="middle" fill={COLORS.green} fontSize="10">LiDAR</text>
+          <text x="898" y="328" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">Silver</text>
+          <text x="898" y="341" textAnchor="middle" fill={COLORS.textDim} fontSize="9">validated · Parquet</text>
+          <text x="75" y="392" textAnchor="middle" fill={COLORS.text} fontSize="11" fontWeight="700">Soil Chemistry</text>
+          <text x="75" y="446" textAnchor="middle" fill={COLORS.orange} fontSize="10">{STATS.chemSamples}</text>
+          <text x="75" y="459" textAnchor="middle" fill={COLORS.textDim} fontSize="9">GPS-tagged · CSV</text>
+          <text x="210" y="392" textAnchor="middle" fill={COLORS.textMuted} fontSize="9">Validation</text>
+          <text x="210" y="444" textAnchor="middle" fill={COLORS.text} fontSize="11" fontWeight="700">Pydantic</text>
+          <text x="210" y="457" textAnchor="middle" fill={COLORS.textDim} fontSize="9">schema check</text>
+          <text x="742" y="392" textAnchor="middle" fill={COLORS.orange} fontSize="10">Chemistry</text>
+          <text x="742" y="444" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">Bronze</text>
+          <text x="742" y="457" textAnchor="middle" fill={COLORS.textDim} fontSize="9">CSV → Parquet</text>
+          <text x="898" y="392" textAnchor="middle" fill={COLORS.orange} fontSize="10">Chemistry</text>
+          <text x="898" y="444" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">Silver</text>
+          <text x="898" y="457" textAnchor="middle" fill={COLORS.textDim} fontSize="9">normalized · Parquet</text>
+          <text x="1015" y="268" textAnchor="end" fill={COLORS.gold} fontSize="12" fontWeight="700">Gold Layer</text>
+          <text x="1015" y="282" textAnchor="end" fill={COLORS.textMuted} fontSize="9">{STATS.goldCells}</text>
+
+          {/* Downstream analysis branch — parallel to JSON/Dashboard line */}
+          <path d="M 1040,326 C 1040,360 1040,370 1080,390 L 1180,390" fill="none" stroke={COLORS.gold} strokeWidth="5" strokeLinecap="round" />
+          <line x1="1180" y1="390" x2="1355" y2="390" stroke="#a855f7" strokeWidth="5" strokeLinecap="round" />
+          <circle cx="1180" cy="390" r="12" fill="#191400" stroke={COLORS.gold} strokeWidth="2.5" />
+          <text x="1180" y="414" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">CSV</text>
+          <text x="1180" y="427" textAnchor="middle" fill={COLORS.textMuted} fontSize="9">Parquet</text>
+          <rect x="1335" y="378" width="75" height="24" rx="5" fill="#1a1028" stroke="#a855f7" strokeWidth="2.5" />
+          <text x="1372" y="394" textAnchor="middle" fill="#a855f7" fontSize="8.5" fontWeight="700">Downstream</text>
+          <text x="1180" y="280" textAnchor="middle" fill={COLORS.textMuted} fontSize="10">Export</text>
+          <text x="1180" y="326" textAnchor="middle" fill={COLORS.text} fontSize="12" fontWeight="700">JSON</text>
+          <text x="1180" y="339" textAnchor="middle" fill={COLORS.textDim} fontSize="9">static · ~500KB</text>
+          <text x="1372" y="266" textAnchor="middle" fill={COLORS.pink} fontSize="9">Interactive</text>
+          <text x="1372" y="328" textAnchor="middle" fill={COLORS.text} fontSize="11" fontWeight="700">Dashboard</text>
+          <text x="1372" y="341" textAnchor="middle" fill={COLORS.pink} fontSize="9">React · JavaScript</text>
+
+          {/* ===== TOOL BADGES ===== */}
+          {/* Below Bioinformatics section label */}
+          <rect x="390" y="510" width="62" height="17" rx="4" fill="#0d1a0d" stroke={COLORS.green} strokeWidth="1" />
+          <text x="421" y="522" textAnchor="middle" fill={COLORS.green} fontSize="9" fontWeight="600">Nextflow</text>
+          <rect x="460" y="510" width="50" height="17" rx="4" fill="#0d1020" stroke={COLORS.blue} strokeWidth="1" />
+          <text x="485" y="522" textAnchor="middle" fill={COLORS.blue} fontSize="9" fontWeight="600">Wave</text>
+          <rect x="518" y="510" width="50" height="17" rx="4" fill="#001525" stroke={COLORS.docker} strokeWidth="1" />
+          <text x="543" y="522" textAnchor="middle" fill={COLORS.docker} fontSize="9" fontWeight="600">Docker</text>
+
+          {/* Below Medallion Layers section label */}
+          <rect x="832" y="510" width="46" height="17" rx="4" fill="#1a1500" stroke={COLORS.polars} strokeWidth="1" />
+          <text x="855" y="522" textAnchor="middle" fill={COLORS.polars} fontSize="9" fontWeight="600">Polars</text>
+          <rect x="886" y="510" width="52" height="17" rx="4" fill="#001a08" stroke={COLORS.parquet} strokeWidth="1" />
+          <text x="912" y="522" textAnchor="middle" fill={COLORS.parquet} fontSize="9" fontWeight="600">Parquet</text>
+          <rect x="946" y="510" width="54" height="17" rx="4" fill="#1a0808" stroke={COLORS.pydantic} strokeWidth="1" />
+          <text x="973" y="522" textAnchor="middle" fill={COLORS.pydantic} fontSize="9" fontWeight="600">Pydantic</text>
+
+          {/* Below Visualization section label */}
+          <rect x="1225" y="510" width="46" height="17" rx="4" fill="#1a0d1a" stroke={COLORS.pink} strokeWidth="1" />
+          <text x="1248" y="522" textAnchor="middle" fill={COLORS.pink} fontSize="9" fontWeight="600">React</text>
+          <rect x="1279" y="510" width="56" height="17" rx="4" fill="#0d1a1a" stroke="#50fa7b" strokeWidth="1" />
+          <text x="1307" y="522" textAnchor="middle" fill="#50fa7b" fontSize="9" fontWeight="600">Three.js</text>
+          <rect x="1343" y="510" width="32" height="17" rx="4" fill="#1a1a0d" stroke="#ffb432" strokeWidth="1" />
+          <text x="1359" y="522" textAnchor="middle" fill="#ffb432" fontSize="9" fontWeight="600">D3</text>
+
+          {/* ===== LEGEND ===== */}
+          <rect x="15" y="590" width="1000" height="42" rx="5" fill="#1c1c1c" stroke={COLORS.divider} strokeWidth="1" />
+          <text x="26" y="615" fill="#4a4a4a" fontSize="8.5" fontWeight="700" letterSpacing="0.5">LEGEND</text>
+          {[
+            { x: 70, color: COLORS.blue, label: 'Metagenomics', lx: 106 },
+            { x: 195, color: COLORS.green, label: 'LiDAR', lx: 231 },
+            { x: 275, color: COLORS.orange, label: 'Soil chemistry', lx: 311 },
+            { x: 405, color: COLORS.gold, label: 'Gold layer', lx: 441 },
+            { x: 510, color: COLORS.pink, label: 'Visualization', lx: 546 },
+          ].map(({ x, color, label, lx }) => (
+            <g key={label}>
+              <line x1={x} y1="615" x2={x + 25} y2="615" stroke={color} strokeWidth="3" strokeLinecap="round" />
+              <text x={lx} y="619" fill="#999" fontSize="9">{label}</text>
+            </g>
+          ))}
+          <line x1="640" y1="615" x2="670" y2="615" stroke={COLORS.blue} strokeWidth="2.5" strokeDasharray="5,4" strokeLinecap="round" opacity="0.6" />
+          <text x="676" y="619" fill="#999" fontSize="9">FASTA bypass</text>
+          <circle cx="770" cy="615" r="5" fill="#2e2e2e" stroke="#777" strokeWidth="1.5" />
+          <text x="780" y="619" fill={COLORS.textDim} fontSize="8.5">File input</text>
+          <circle cx="840" cy="615" r="5" fill={COLORS.bg} stroke={COLORS.blue} strokeWidth="2" />
+          <text x="850" y="619" fill={COLORS.textDim} fontSize="8.5">Process node</text>
+          <circle cx="930" cy="615" r="6" fill="#191400" stroke={COLORS.gold} strokeWidth="2" />
+          <text x="940" y="619" fill={COLORS.textDim} fontSize="8.5">Gold merge</text>
         </svg>
       </div>
     </div>
