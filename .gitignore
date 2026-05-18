@@ -1,0 +1,48 @@
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+.kiro/
+
+# === Data (large files) ===
+data/bronze/metagenomics/SRR6189722.fastq
+data/bronze/metagenomics/SRR6189722_subset.fastq
+data/silver/
+data/gold/
+databases/
+
+# === Keep bronze synthetic data (small, regenerable) ===
+# data/bronze/lidar/lidar_grid.csv — tracked (regenerable via generate_lidar.py)
+# data/bronze/chemistry/soil_chemistry.csv — tracked (regenerable via generate_chemistry.py)
+
+# === Nextflow ===
+.nextflow/
+.nextflow.log*
+work/
+results/
+results_full/
+results_wave/
+
+# === Dashboard ===
+dashboard/node_modules/
+dashboard/dist/
+
+# === Environment ===
+.env
+.netrc
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === IDE/Tools ===
+.kiro/
+
+# === Pathway Tools installer ===
+*.bin
+pathway-tools-*
+pathway-tools-*.tar.gz
