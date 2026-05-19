@@ -3,7 +3,9 @@ import json
 from pathlib import Path
 from src.layers.silver.lidar_transform import transform_lidar
 from src.layers.silver.chemistry_transform import transform_chemistry
-from src.layers.silver.metagenomics_transform import transform_blast_to_functional_summary
+from src.layers.silver.metagenomics_transform import (
+    transform_blast_to_functional_summary,
+)
 from src.layers.gold.spatial_merge import merge_spatial_data
 
 # Paths
@@ -23,7 +25,9 @@ transform_chemistry(
 )
 
 transform_blast_to_functional_summary(
-    Path("results_full/pathways/metapathways_out/assembled_contigs/blast_results/assembled_contigs.swissprot.BLASTout"),
+    Path(
+        "results_full/pathways/metapathways_out/assembled_contigs/blast_results/assembled_contigs.swissprot.BLASTout"
+    ),
     silver / "metagenomics" / "functional_summary.parquet",
 )
 

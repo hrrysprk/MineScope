@@ -9,9 +9,18 @@ def transform_blast_to_functional_summary(input_path: Path, output_path: Path) -
         separator="\t",
         has_header=False,
         new_columns=[
-            "orf_id", "accession", "identity_pct", "alignment_length",
-            "mismatches", "gap_opens", "q_start", "q_end",
-            "s_start", "s_end", "evalue", "bitscore",
+            "orf_id",
+            "accession",
+            "identity_pct",
+            "alignment_length",
+            "mismatches",
+            "gap_opens",
+            "q_start",
+            "q_end",
+            "s_start",
+            "s_end",
+            "evalue",
+            "bitscore",
         ],
     )
 
@@ -31,9 +40,7 @@ def transform_blast_to_functional_summary(input_path: Path, output_path: Path) -
     geometric_mean = np.exp(np.mean(log_counts))
     clr_values = np.log((counts + 1) / geometric_mean)
 
-    functional_counts = functional_counts.with_columns(
-        pl.Series("clr", clr_values)
-    )
+    functional_counts = functional_counts.with_columns(pl.Series("clr", clr_values))
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     functional_counts.write_parquet(output_path)

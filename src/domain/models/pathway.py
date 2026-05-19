@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 class PathwayHit(BaseModel):
     """Fields map directly to BLAST output."""
+
     orf_if: str
     accession: str
     indentity_pct: float = Field(ge=0, le=100)
