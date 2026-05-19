@@ -21,9 +21,9 @@ export default function PHRichnessScatter({ data }) {
 
     // For this prototype, functional_richness is constant (one metagenome).
     // Simulate per-site richness correlated with pH for visualization.
-    const enrichedData = chemData.map(d => ({
+    const enrichedData = chemData.map((d, idx) => ({
       ...d,
-      simRichness: Math.round(200 + (4.5 - d.pH) * 80 + (Math.random() - 0.5) * 60),
+      simRichness: Math.round(200 + (4.5 - d.pH) * 80 + (Math.sin(idx * 7.3) * 30)),
     }));
 
     const xScale = d3.scaleLinear().domain([1, 5]).range([0, w]).nice();
