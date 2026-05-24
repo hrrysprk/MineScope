@@ -51,6 +51,7 @@ Three parallel data streams converge through a medallion architecture into a sin
 | **D8 flow direction encoding** | Industry-standard hydrology encoding (powers of 2 for 8 compass directions). Any GIS tool recognizes it. Derived from terrain aspect — tells us where water flows at every cell. |
 | **Pydantic at every boundary** | Schema-as-code. Constraints encode domain knowledge: pH can't exceed 14, concentrations can't be negative, slope can't be negative. Bad data fails at ingestion, not silently downstream. |
 | **Polars over Pandas** | Type-strict, native Parquet I/O, 5-10x faster. Aligns with the validation-first philosophy. |
+| **Seqera Platform (Tower)** | Pipeline runs are tracked in [Seqera Cloud](https://cloud.seqera.io). Full provenance, monitoring, and scheduling for production deployment. |
 | **CLR normalization in Silver** | Centered log-ratio transformation prepares functional counts for multi-sample comparison. Ready for when per-location metagenomes arrive. |
 
 ---
@@ -146,6 +147,7 @@ The pattern confirms: **terrain → chemistry → biology**. The microbial commu
 | Layer | Technology |
 |-------|-----------|
 | Pipeline orchestration | Nextflow 26 + Wave containers |
+| Pipeline monitoring | [Seqera Platform](https://cloud.seqera.io) (Tower) |
 | Assembly | MEGAHIT (containerized) |
 | Pathway annotation | MetaPathways v3.5 (containerized) |
 | Data processing | Python 3.12, Polars, Pydantic |
