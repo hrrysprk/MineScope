@@ -6,9 +6,11 @@
 
 ## Why This Matters
 
-Acid mine drainage (AMD) is one of the most persistent environmental challenges in mining. When sulphide minerals are exposed to water and air, sulphur-oxidizing bacteria like *Acidithiobacillus thiooxidans* catalyze the production of sulfuric acid. This dissolves heavy metals — iron, arsenic, copper, zinc — into drainage water, contaminating downstream ecosystems for decades. The key insight is that this isn't random: physical terrain drives where water flows, water flow drives where chemistry concentrates, and chemistry drives where these microbial communities assemble. Understanding this spatial cascade is the difference between reactive cleanup and predictive management.
+Acid mine drainage (AMD) is one of the most persistent environmental challenges in mining. When sulphide minerals are exposed to water and air, sulphur-oxidizing bacteria like *Acidithiobacillus thiooxidans* catalyze the production of sulfuric acid. This dissolves heavy metals (iron, arsenic, copper, zinc) into drainage water, contaminating downstream ecosystems for decades.
 
-MineScope integrates three data streams — metagenomics sequencing, LiDAR terrain mapping, and soil chemistry — into a unified spatial model. Every grid cell on the mine site gets a complete profile: what the terrain looks like, what the chemistry is, and what the microbial community is doing. The result is a platform that shows not just *where* AMD is happening, but *why* it's happening there — and where it will happen next.
+The key insight is that this isn't random. Physical terrain drives where water flows. Water flow drives where chemistry concentrates. Chemistry drives where microbial communities assemble. Understanding this spatial cascade is the difference between reactive cleanup and predictive management.
+
+MineScope integrates three data streams (metagenomics sequencing, LiDAR terrain mapping, and soil chemistry) into a unified spatial model. Every grid cell on the mine site gets a complete profile: what the terrain looks like, what the chemistry is, and what the microbial community is doing. The result is a platform that shows not just *where* AMD is happening, but *why* it's happening there, and where it will happen next.
 
 **[→ Live Dashboard](https://hrrysprk.github.io/MineScope/)** · **[→ Pipeline Diagram](https://hrrysprk.github.io/MineScope/#pipeline)**
 
@@ -37,7 +39,7 @@ MineScope integrates three data streams — metagenomics sequencing, LiDAR terra
   Soil Chemistry ─────────────────────────▶ (x,y) spatial join
 ```
 
-Three parallel data streams converge through a medallion architecture into a single gold layer. Each cell in the gold layer contains terrain topology, soil chemistry, and microbial functional annotation — merged on spatial coordinates.
+Three parallel data streams converge through a medallion architecture into a single gold layer. Each cell in the gold layer contains terrain topology, soil chemistry, and microbial functional annotation, all merged on spatial coordinates.
 
 ---
 
@@ -45,10 +47,10 @@ Three parallel data streams converge through a medallion architecture into a sin
 
 | Decision | Why |
 |----------|-----|
-| **Hexagonal ports & adapters** | Each data source gets its own adapter. If the LiDAR format changes from CSV to GeoTIFF, only the adapter changes — domain logic stays untouched. |
+| **Hexagonal ports & adapters** | Each data source gets its own adapter. If the LiDAR format changes from CSV to GeoTIFF, only the adapter changes. Domain logic stays untouched. |
 | **Medallion layers (Bronze → Silver → Gold)** | Clear data lineage. Every value is traceable back to its raw source. Validation at every boundary catches corruption early. |
 | **MetaPathways v3.5 containerized via Wave** | Koonkie's own pathway reconstruction tool, running in Docker with automatic multi-arch provisioning. Same pipeline runs on Apple Silicon, x86 servers, and cloud HPC without configuration changes. |
-| **D8 flow direction encoding** | Industry-standard hydrology encoding (powers of 2 for 8 compass directions). Any GIS tool recognizes it. Derived from terrain aspect — tells us where water flows at every cell. |
+| **D8 flow direction encoding** | Industry-standard hydrology encoding (powers of 2 for 8 compass directions). Any GIS tool recognizes it. Derived from terrain aspect, tells us where water flows at every cell. |
 | **Pydantic at every boundary** | Schema-as-code. Constraints encode domain knowledge: pH can't exceed 14, concentrations can't be negative, slope can't be negative. Bad data fails at ingestion, not silently downstream. |
 | **Polars over Pandas** | Type-strict, native Parquet I/O, 5-10x faster. Aligns with the validation-first philosophy. |
 | **Seqera Platform (Tower)** | Pipeline runs are tracked in [Seqera Cloud](https://cloud.seqera.io). Full provenance, monitoring, and scheduling for production deployment. |
@@ -62,7 +64,7 @@ Three parallel data streams converge through a medallion architecture into a sin
 |--------|--------|---------|
 | Metagenomics | [SRR6189722](https://www.ncbi.nlm.nih.gov/sra/SRR6189722) (NCBI SRA) | Gold mine tailings metagenome, Kuzbass Russia. 454 GS FLX Titanium, single-end, 438K reads. Annotated with [MetaPathways v3.5](https://bitbucket.org/BCB2/metapathways/) (Hallam Lab, UBC). |
 | LiDAR | Synthetic (realistic) | 50×50m grid at 1m resolution. Drainage channels, ridge lines, tailings mound, excavation pit. Based on published mine site topography. |
-| Soil Chemistry | Synthetic (realistic) | 150 GPS-tagged samples. pH 1–5, Fe up to 6000 mg/L, As up to 800 mg/L. Values correlated with terrain drainage — based on published chemistry from the SRR6189722 paper. |
+| Soil Chemistry | Synthetic (realistic) | 150 GPS-tagged samples. pH 1-5, Fe up to 6000 mg/L, As up to 800 mg/L. Values correlated with terrain drainage, based on published chemistry from the SRR6189722 paper. |
 
 ---
 
@@ -130,13 +132,13 @@ The dashboard reveals the AMD spatial cascade:
 
 1. **Elevation layer** — The drainage channel is visible as a blue-green trough running diagonally across the site. Water accumulates here.
 
-2. **pH layer** — Acidity concentrates along the drainage path (pH 1.2–2.5 in the channel vs 4+ on ridges). This is where sulfuric acid pools.
+2. **pH layer** — Acidity concentrates along the drainage path (pH 1.2-2.5 in the channel vs 4+ on ridges). This is where sulfuric acid pools.
 
 3. **Iron layer** — Dissolved iron peaks where pH is lowest (>6000 mg/L in the channel). Classic AMD geochemistry signature.
 
 4. **Pathway enrichment** — The top annotated functions from MetaPathways are biofilm signaling, heavy metal efflux, and cation resistance. These are survival strategies for organisms living in extreme metal/acid conditions.
 
-The pattern confirms: **terrain → chemistry → biology**. The microbial community isn't randomly distributed — it's spatially organized by the physical and chemical landscape.
+The pattern confirms: **terrain → chemistry → biology**. The microbial community isn't randomly distributed. It's spatially organized by the physical and chemical landscape.
 
 ![Analytics View](docs/hero3.png)
 
@@ -195,14 +197,93 @@ MineScope/
 
 ---
 
+## Phase 2: Amplicon Pipeline + Constrained Annotation
+
+### Amplicon: Canonicalize to QIIME2 via nf-core/ampliseq
+
+Rather than writing custom adapters for every amplicon format (FASTQ, BIOM, OTU tables, .qza), the approach is to canonicalize all inputs to QIIME2 artifacts first, then run a single standardized pipeline from there.
+
+[nf-core/ampliseq](https://nf-co.re/ampliseq) already handles the heavy lifting: multi-format input, DADA2 denoising, taxonomic classification (SILVA 138), alpha/beta diversity, and PICRUSt2 functional prediction. It's maintained by 50+ contributors, tested across hundreds of datasets, and integrates with Seqera Platform out of the box.
+
+**The integration plan:**
+
+```
+Any format (FASTQ, BIOM, OTU table, legacy pipeline output)
+    → nf-core/ampliseq (DADA2, taxonomy, diversity, PICRUSt2)
+        → QIIME2 artifacts with full provenance
+            → Extraction adapter (QIIME2 → AmpliconSample domain model)
+                → Gold layer spatial merge on (x, y)
+                    → Constrained annotation pipeline
+```
+
+**Why this approach:**
+- QIIME2 ensures reproducibility. Every artifact carries its full provenance graph.
+- DADA2, diversity metrics, and PICRUSt2 are battle-tested QIIME2 plugins. No need to reimplement them.
+- Adding a new input format means writing one conversion step, not a full processing pipeline.
+- nf-core/ampliseq handles the brutal edge cases (chimera removal, primer trimming per platform, index hopping, cross-talk filtering).
+- Koonkie's clients likely already use QIIME2, so we meet them where they are.
+
+**Tools:** nf-core/ampliseq, DADA2, SILVA 138, PICRUSt2, QIIME2, Nextflow DSL2, Seqera Platform
+
+---
+
+### Geochemically-Constrained Annotation with ESM2
+
+The problem: up to 80% of organisms at an AMD site have no close relative in any reference database. BLAST against SwissProt searches a database built from well-studied lab organisms. The AMD community falls outside that reference space. Annotations come back sparse. Pathway reconstruction fails.
+
+The insight: the environment itself constrains what biology is possible. At pH 1.5 with iron at 6,000 mg/L, the vast majority of metabolic strategies are thermodynamically impossible. Only a narrow set of pathways can operate. Only proteins with specific biophysical signatures can remain stable.
+
+**Four independent constraints narrow the hypothesis space:**
+
+1. **Sequence space** — What proteins are encoded? Standard ORF prediction from assembled contigs.
+2. **Geochemical feasibility** — What can physically function at this chemistry? pH, temperature, and ion concentrations eliminate candidates that can't survive the measured conditions.
+3. **Pathway completeness** — What's needed to close detected pathway fragments? Detecting steps 1, 2, and 4 of a cycle constrains what 3, 5, and 6 must look like.
+4. **Metabolomics validation** — What products are actually present? LC-MS/MS for sulfur intermediates provides direct confirmation independent of sequence inference.
+
+ESM2 (Meta's 650M-parameter protein language model) runs *after* these four filters reduce the candidate set from tens of thousands to a small, biologically coherent group. Foldseek + AlphaFold2 predicted structures provide structural alignment as additional evidence. The answer lives in the intersection of all constraints.
+
+**Tools:** ESM2, AlphaFold2, Foldseek, LC-MS/MS, k-NN embedding search, Seqera Platform (provenance per annotation)
+
+---
+
+### Self-Supervised Error Learning
+
+Once the constrained annotation pipeline has processed enough data, we accumulate a large set of cases where predictions were correct and where they were incorrect. This creates a training signal.
+
+**The approach (inspired by DADA2's error model):**
+
+1. Take fully annotated metagenomes where BLAST hit with high confidence (>90% identity, >80% coverage, e-value < 1e-50). These are near-certain ground truth.
+2. Mask random ORFs from the annotation. Pretend they have no known function.
+3. Run the constraint pipeline + ESM2 on the masked ORFs.
+4. Compare predictions to the known ground truth.
+5. Train a model that learns the systematic error patterns: when does ESM2 fail, under what conditions, and in what direction?
+
+**What the error model learns:**
+- Embedding distance thresholds where ESM2 becomes unreliable
+- Chemistry regimes where predictions systematically drift (ESM2 was trained on mesophilic proteins, so it may fail on acidophilic ones in predictable ways)
+- Protein length effects (short ORFs carry less embedding information)
+- Interactions between constraint agreement and prediction accuracy
+
+**Why this works:**
+- You can generate unlimited training data from any well-annotated metagenome without waiting for external validation.
+- You control difficulty by masking easy ORFs (high BLAST identity) vs hard ones (low identity, novel).
+- The model learns to reach correct annotations *without* needing high sequence similarity, which is exactly what's needed for novel organisms where BLAST fails.
+- As M-MAP grows across mining sites, the error model improves. Each new site makes the system smarter not just by adding reference sequences, but by teaching it where the pipeline systematically fails.
+
+This is the compounding advantage. A database built from mining environments, annotated with geochemical context, and self-correcting through learned error patterns cannot be replicated by downloading SwissProt.
+
+---
+
 ## Roadmap
 
-- [ ] Automated protein-to-function mapping for pathway enrichment (replace manual accession lookup)
+- [ ] nf-core/ampliseq integration as Nextflow subworkflow
+- [ ] QIIME2 artifact extraction adapter (→ AmpliconSample domain model → gold layer)
+- [ ] Geochemically-constrained annotation pipeline (4 constraints + ESM2)
+- [ ] Self-supervised error learning from masked annotation prediction
 - [ ] Per-location metagenomes for true spatial resolution of functional profiles
 - [ ] MetaCyc integration when institutional license access is resolved
-- [ ] Multi-format amplicon pipeline: FASTQ, QIIME2 artifacts, OTU tables, BIOM format
 - [ ] Time-series monitoring via Seqera Platform (scheduled pipeline runs + threshold alerts)
-- [ ] AMD risk score — composite spatial index for predictive site management
+- [ ] AMD risk score: composite spatial index for predictive site management
 
 ---
 
