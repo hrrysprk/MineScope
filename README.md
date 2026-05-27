@@ -197,6 +197,58 @@ MineScope/
 
 ---
 
+## Pipeline Launch (Interactive Configuration)
+
+MineScope uses `nf-core launch` with a `nextflow_schema.json` for interactive pipeline configuration. Users run a single command and get walked through all options in the terminal:
+
+```bash
+nf-core launch ./
+```
+
+This presents an interactive form where users select their input types, data paths, and which pipeline stages to enable. No need to memorize CLI flags.
+
+### Parameter Groups
+
+**Input/Output (required)**
+
+| Parameter | Description |
+|-----------|-------------|
+| `input_fastq` | Raw metagenomics FASTQ (null if using FASTA) |
+| `input_fasta` | Pre-assembled contigs (skips MEGAHIT assembly) |
+| `outdir` | Output directory |
+
+**Amplicon (optional)**
+
+| Parameter | Description |
+|-----------|-------------|
+| `amplicon_results` | Path to nf-core/ampliseq output directory. If provided, amplicon data gets merged into the gold layer. |
+
+**Data Sources (optional)**
+
+| Parameter | Description |
+|-----------|-------------|
+| `lidar` | Path to LiDAR terrain CSV |
+| `chemistry` | Path to soil chemistry CSV |
+
+**Constrained Annotation (optional, advanced)**
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `run_constrained_annotation` | false | Enable ESM2 + geochemical constraint pipeline |
+| `esm2_model` | esm2_t33_650M | Which ESM2 model to use |
+| `blast_evalue` | 1e-5 | E-value threshold for BLAST hits |
+| `ph_tolerance` | 0.5 | pH tolerance range for geochemical filter |
+| `min_pathway_completion` | 0.5 | Minimum fraction for pathway completeness constraint |
+
+**Execution**
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `threads` | 4 | CPU threads per process |
+| `db_path` | databases/ | Path to reference databases (SwissProt, SILVA) |
+
+---
+
 ## Phase 2: Amplicon Pipeline + Constrained Annotation
 
 ### Amplicon: Canonicalize to QIIME2 via nf-core/ampliseq
