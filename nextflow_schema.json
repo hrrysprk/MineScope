@@ -1,0 +1,104 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/hrrysprk/MineScope/main/nextflow_schema.json",
+    "title": "MineScope pipeline parameters",
+    "description": "Map microbial community activity onto the physical and chemical landscape of a mine site.",
+    "type": "object",
+    "defs": {
+        "input_output_options": {
+            "title": "Input/Output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define input data paths and output directory.",
+            "required": ["outdir"],
+            "properties": {
+                "input_fastq": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to raw metagenomics FASTQ file.",
+                    "help_text": "Provide raw sequencing reads for assembly with MEGAHIT. Mutually exclusive with --input_fasta.",
+                    "fa_icon": "fas fa-dna"
+                },
+                "input_fasta": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to pre-assembled contigs (FASTA). Skips MEGAHIT assembly.",
+                    "help_text": "Use this if you already have assembled contigs. The pipeline will skip the assembly step and go directly to MetaPathways annotation.",
+                    "fa_icon": "fas fa-file-code"
+                },
+                "outdir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Output directory for results.",
+                    "default": "results",
+                    "fa_icon": "fas fa-folder-open"
+                }
+            }
+        },
+        "amplicon_options": {
+            "title": "Amplicon options",
+            "type": "object",
+            "fa_icon": "fas fa-bacteria",
+            "description": "Provide pre-processed amplicon data from nf-core/ampliseq.",
+            "properties": {
+                "amplicon_results": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to nf-core/ampliseq output directory.",
+                    "help_text": "If provided, amplicon-derived taxonomy and diversity metrics are extracted and merged into the gold layer spatial join. Run nf-core/ampliseq separately first, then point this to its output directory.",
+                    "fa_icon": "fas fa-folder"
+                }
+            }
+        },
+        "data_sources": {
+            "title": "Spatial data sources",
+            "type": "object",
+            "fa_icon": "fas fa-map",
+            "description": "Paths to LiDAR terrain and soil chemistry data.",
+            "properties": {
+                "lidar": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to LiDAR terrain grid CSV.",
+                    "help_text": "CSV with columns: x, y, elevation, slope, aspect, flow_direction. Each row is one grid cell on the mine site.",
+                    "fa_icon": "fas fa-mountain"
+                },
+                "chemistry": {
+                    "type": "string",
+                    "format": "file-path",
+                    "description": "Path to soil chemistry CSV.",
+                    "help_text": "CSV with columns: x, y, pH, fe_mg_l, cu_mg_l, as_mg_l, zn_mg_l, moisture_pct, sulfate_mg_l. GPS-tagged sample points.",
+                    "fa_icon": "fas fa-flask"
+                }
+            }
+        },
+        "execution_options": {
+            "title": "Execution options",
+            "type": "object",
+            "fa_icon": "fas fa-cog",
+            "description": "Resource allocation and reference database configuration.",
+            "properties": {
+                "threads": {
+                    "type": "integer",
+                    "default": 4,
+                    "description": "CPU threads per process.",
+                    "fa_icon": "fas fa-microchip"
+                },
+                "db_path": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "default": "${projectDir}/databases",
+                    "description": "Path to reference databases (SwissProt, SILVA).",
+                    "help_text": "Directory containing MetaPathways reference databases. See SETUP.md for download instructions.",
+                    "fa_icon": "fas fa-database"
+                }
+            }
+        }
+    },
+    "allOf": [
+        { "$ref": "#/defs/input_output_options" },
+        { "$ref": "#/defs/amplicon_options" },
+        { "$ref": "#/defs/data_sources" },
+        { "$ref": "#/defs/execution_options" }
+    ]
+}

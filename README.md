@@ -230,16 +230,6 @@ This presents an interactive form where users select their input types, data pat
 | `lidar` | Path to LiDAR terrain CSV |
 | `chemistry` | Path to soil chemistry CSV |
 
-**Constrained Annotation (optional, advanced)**
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `run_constrained_annotation` | false | Enable ESM2 + geochemical constraint pipeline |
-| `esm2_model` | esm2_t33_650M | Which ESM2 model to use |
-| `blast_evalue` | 1e-5 | E-value threshold for BLAST hits |
-| `ph_tolerance` | 0.5 | pH tolerance range for geochemical filter |
-| `min_pathway_completion` | 0.5 | Minimum fraction for pathway completeness constraint |
-
 **Execution**
 
 | Parameter | Default | Description |
@@ -249,9 +239,9 @@ This presents an interactive form where users select their input types, data pat
 
 ---
 
-## Phase 2: Amplicon Pipeline + Constrained Annotation
+## Phase 2: Amplicon Pipeline
 
-### Amplicon: Canonicalize to QIIME2 via nf-core/ampliseq
+### Canonicalize to QIIME2 via nf-core/ampliseq
 
 Rather than writing custom adapters for every amplicon format (FASTQ, BIOM, OTU tables, .qza), the approach is to canonicalize all inputs to QIIME2 artifacts first, then run a single standardized pipeline from there.
 
@@ -265,7 +255,6 @@ Any format (FASTQ, BIOM, OTU table, legacy pipeline output)
         → QIIME2 artifacts with full provenance
             → Extraction adapter (QIIME2 → AmpliconSample domain model)
                 → Gold layer spatial merge on (x, y)
-                    → Constrained annotation pipeline
 ```
 
 **Why this approach:**
@@ -279,13 +268,19 @@ Any format (FASTQ, BIOM, OTU table, legacy pipeline output)
 
 ---
 
-### Geochemically-Constrained Annotation with ESM2
+## Future Research: Geochemically-Constrained Annotation
 
-The problem: up to 80% of organisms at an AMD site have no close relative in any reference database. BLAST against SwissProt searches a database built from well-studied lab organisms. The AMD community falls outside that reference space. Annotations come back sparse. Pathway reconstruction fails.
+This is a separate research project exploring whether environmental chemistry can improve functional annotation of novel proteins in extreme environments. It lives outside the production pipeline.
 
-The insight: the environment itself constrains what biology is possible. At pH 1.5 with iron at 6,000 mg/L, the vast majority of metabolic strategies are thermodynamically impossible. Only a narrow set of pathways can operate. Only proteins with specific biophysical signatures can remain stable.
+### The Problem
 
-**Four independent constraints narrow the hypothesis space:**
+Up to 80% of organisms at an AMD site have no close relative in any reference database. BLAST against SwissProt searches a database built from well-studied lab organisms. The AMD community falls outside that reference space. Annotations come back sparse. Pathway reconstruction fails.
+
+### The Insight
+
+The environment itself constrains what biology is possible. At pH 1.5 with iron at 6,000 mg/L, the vast majority of metabolic strategies are thermodynamically impossible. Only a narrow set of pathways can operate. Only proteins with specific biophysical signatures can remain stable.
+
+### Four Independent Constraints
 
 1. **Sequence space** — What proteins are encoded? Standard ORF prediction from assembled contigs.
 2. **Geochemical feasibility** — What can physically function at this chemistry? pH, temperature, and ion concentrations eliminate candidates that can't survive the measured conditions.
@@ -294,15 +289,9 @@ The insight: the environment itself constrains what biology is possible. At pH 1
 
 ESM2 (Meta's 650M-parameter protein language model) runs *after* these four filters reduce the candidate set from tens of thousands to a small, biologically coherent group. Foldseek + AlphaFold2 predicted structures provide structural alignment as additional evidence. The answer lives in the intersection of all constraints.
 
-**Tools:** ESM2, AlphaFold2, Foldseek, LC-MS/MS, k-NN embedding search, Seqera Platform (provenance per annotation)
-
----
-
 ### Self-Supervised Error Learning
 
-Once the constrained annotation pipeline has processed enough data, we accumulate a large set of cases where predictions were correct and where they were incorrect. This creates a training signal.
-
-**The approach (inspired by DADA2's error model):**
+Once the constrained annotation pipeline has processed enough data, we accumulate cases where predictions were correct and incorrect. This creates a training signal, inspired by DADA2's error model:
 
 1. Take fully annotated metagenomes where BLAST hit with high confidence (>90% identity, >80% coverage, e-value < 1e-50). These are near-certain ground truth.
 2. Mask random ORFs from the annotation. Pretend they have no known function.
@@ -310,19 +299,9 @@ Once the constrained annotation pipeline has processed enough data, we accumulat
 4. Compare predictions to the known ground truth.
 5. Train a model that learns the systematic error patterns: when does ESM2 fail, under what conditions, and in what direction?
 
-**What the error model learns:**
-- Embedding distance thresholds where ESM2 becomes unreliable
-- Chemistry regimes where predictions systematically drift (ESM2 was trained on mesophilic proteins, so it may fail on acidophilic ones in predictable ways)
-- Protein length effects (short ORFs carry less embedding information)
-- Interactions between constraint agreement and prediction accuracy
+The model learns to reach correct annotations *without* needing high sequence similarity, which is exactly what's needed for novel organisms where BLAST fails. As M-MAP grows across mining sites, the error model improves. Each new site makes the system smarter not just by adding reference sequences, but by teaching it where the pipeline systematically fails.
 
-**Why this works:**
-- You can generate unlimited training data from any well-annotated metagenome without waiting for external validation.
-- You control difficulty by masking easy ORFs (high BLAST identity) vs hard ones (low identity, novel).
-- The model learns to reach correct annotations *without* needing high sequence similarity, which is exactly what's needed for novel organisms where BLAST fails.
-- As M-MAP grows across mining sites, the error model improves. Each new site makes the system smarter not just by adding reference sequences, but by teaching it where the pipeline systematically fails.
-
-This is the compounding advantage. A database built from mining environments, annotated with geochemical context, and self-correcting through learned error patterns cannot be replicated by downloading SwissProt.
+**Tools:** ESM2, AlphaFold2, Foldseek, LC-MS/MS, k-NN embedding search, Seqera Platform
 
 ---
 
@@ -330,8 +309,6 @@ This is the compounding advantage. A database built from mining environments, an
 
 - [ ] nf-core/ampliseq integration as Nextflow subworkflow
 - [ ] QIIME2 artifact extraction adapter (→ AmpliconSample domain model → gold layer)
-- [ ] Geochemically-constrained annotation pipeline (4 constraints + ESM2)
-- [ ] Self-supervised error learning from masked annotation prediction
 - [ ] Per-location metagenomes for true spatial resolution of functional profiles
 - [ ] MetaCyc integration when institutional license access is resolved
 - [ ] Time-series monitoring via Seqera Platform (scheduled pipeline runs + threshold alerts)
